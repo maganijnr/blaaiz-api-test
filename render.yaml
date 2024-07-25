@@ -11,3 +11,7 @@ services:
       - key: PORT
         value: '3000'
       - key: DATABASE_URL
+
+databases:
+  - name: mongodb
+    plan: free
