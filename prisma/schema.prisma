@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Transaction {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  first_name      String
+  last_name       String
+  currency        CurrencyEnum    @default(NGN)
+  transaction_fee Int
+  amount          Int
+  status          StatusEnum      @default(PENDING)
+  type            TransactionEnum @default(OTHERS)
+  date            DateTime        @default(now())
+  card            String
+  transaction_id  String
+}
+
+enum StatusEnum {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum TransactionEnum {
+  FAMILY
+  SHOPPING
+  TRANSFER
+  SERVICE
+  INSURANCE
+  FOOD
+  MUSIC
+  OTHERS
+}
+
+enum CurrencyEnum {
+  USD
+  CAD
+  NGN
+  GBP
+  KES
+}
