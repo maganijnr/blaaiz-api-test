@@ -42,8 +42,6 @@ export class TransactionsController {
         ? queries?.currency?.split(',')
         : [];
 
-    console.log(statusArray);
-
     const filterData: TransactionFilterDto = {
       ...queries,
       status: statusArray,

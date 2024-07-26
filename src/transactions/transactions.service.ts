@@ -13,8 +13,13 @@ export class TransactionsService {
     queries: TransactionFilterDto,
     { currentPage = 1, pageLimit = 10 }: PaginationDto,
   ) {
+    const skip = (currentPage - 1) * pageLimit;
+    const take = pageLimit;
+
     try {
       const transaction = await this.prisma.transaction.findMany({
+        skip: skip,
+        take: take,
         where: {
           date: {
             gte: queries?.start_date
@@ -48,21 +53,26 @@ export class TransactionsService {
         },
       });
 
-      console.log(transaction.length);
-
-      const metaData = this.paginate(
-        transaction.length,
-        Number(currentPage),
-        Number(pageLimit),
-      );
-
-      console.log(metaData);
+      const totalTransactions = await this.prisma.transaction.count();
+      const totalPages = Math.ceil(totalTransactions / pageLimit);
+      console.log(totalPages);
+      const offset = currentPage === 1 ? 0 : (currentPage - 1) * pageLimit;
+      let nextPage = currentPage + 1;
+      const prevPage = currentPage > 1 ? currentPage - 1 : currentPage;
+      if (nextPage > totalPages) nextPage = totalPages;
 
       return {
         status: HttpStatus.OK,
         message: 'User transactions fetched successfully',
         data: transaction,
-        meta: metaData,
+        meta: {
+          totalPages: totalPages,
+          currentPage: currentPage,
+          pageLimit: pageLimit,
+          offset: offset,
+          nextPage: nextPage,
+          prevPage: prevPage,
+        },
       };
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -73,8 +83,6 @@ export class TransactionsService {
   }
 
   paginate(total: number, page: number, limit: number) {
-    console.log(page);
-    console.log(limit);
     limit = Number(limit);
     let currentPage = page ? Number(page) : 1;
     let next_page = currentPage + 1;
