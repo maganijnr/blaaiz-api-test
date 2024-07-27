@@ -1,5 +1,4 @@
 import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
-import { CurrencyEnum, StatusEnum, TransactionEnum } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TransactionFilterDto } from './dto/transaction-filter.dto';
@@ -57,7 +56,44 @@ export class TransactionsService {
         },
       });
 
-      const totalTransactions = await this.prisma.transaction.count();
+      const totalTransactions = await this.prisma.transaction.count({
+        where: {
+          date: {
+            gte: queries?.start_date
+              ? new Date(queries?.start_date)
+              : undefined,
+            lte: queries?.end_date ? new Date(queries?.end_date) : undefined,
+          },
+          status:
+            queries?.status && queries?.status.length > 0
+              ? { in: queries?.status }
+              : undefined,
+          amount: {
+            gte: queries?.minimum_amount
+              ? Number(queries?.minimum_amount)
+              : undefined,
+            lte: queries?.maximum_amount
+              ? Number(queries?.maximum_amount)
+              : undefined,
+          },
+          transaction_fee: {
+            gte: queries?.min_fee ? Number(queries?.min_fee) : undefined,
+            lte: queries?.max_fee ? Number(queries?.max_fee) : undefined,
+          },
+          type:
+            queries?.type && queries?.type.length > 0
+              ? { in: queries?.type }
+              : undefined,
+          first_name: queries?.search
+            ? { contains: queries?.search, mode: 'insensitive' }
+            : undefined,
+          currency:
+            queries?.currency && queries?.currency.length > 0
+              ? { in: queries?.currency }
+              : undefined,
+        },
+      });
+
       const totalPages = Math.ceil(totalTransactions / pageLimit);
       console.log(totalPages);
       const offset = currentPage === 1 ? 0 : (currentPage - 1) * pageLimit;
