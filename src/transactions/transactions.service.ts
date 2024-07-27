@@ -39,6 +39,10 @@ export class TransactionsService {
               ? Number(queries?.maximum_amount)
               : undefined,
           },
+          transaction_fee: {
+            gte: queries?.min_fee ? Number(queries?.min_fee) : undefined,
+            lte: queries?.max_fee ? Number(queries?.max_fee) : undefined,
+          },
           type:
             queries?.type && queries?.type.length > 0
               ? { in: queries?.type }

@@ -30,6 +30,14 @@ export class TransactionFilterDto {
   maximum_amount?: number;
 
   @IsOptional()
+  @IsNumber()
+  min_fee?: number;
+
+  @IsOptional()
+  @IsNumber()
+  max_fee?: number;
+
+  @IsOptional()
   @IsEnum(StatusEnum, {
     each: true,
     message: 'Status must be either COMPLETED, PENDING, or FAILED',

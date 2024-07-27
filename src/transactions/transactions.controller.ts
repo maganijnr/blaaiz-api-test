@@ -22,6 +22,8 @@ export class TransactionsController {
       type?: string;
       currentPage: number;
       pageLimit: number;
+      min_fee?: number;
+      max_fee?: number;
     },
   ) {
     //@ts-ignore
